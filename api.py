@@ -415,8 +415,8 @@ def add_vs_name(vs_name):
         if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "content")):
             os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "content"))
         # 新建向量库存储路径
-        if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "vector_store")):
-            os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "vector_store"))
+        if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "vector_store", "index.faiss")):
+            os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "vector_store", "index.faiss"))
         vs_status = f"""已新增知识库"{vs_name}",将在上传文件并载入成功后进行存储。请在开始对话前，先完成文件上传。 """
         return BaseResponse(code=200, msg=vs_status)
 
@@ -424,14 +424,16 @@ async def document():
     return RedirectResponse(url="/docs")
 
 def get_vs_list():
-    lst_default = ["新建知识库"]
     if not os.path.exists(KB_ROOT_PATH):
-        return lst_default
-    lst = os.listdir(KB_ROOT_PATH)
-    if not lst:
-        return lst_default
-    lst.sort()
-    return lst
+        all_doc_ids = []
+    else:
+        all_doc_ids = [
+            folder
+            for folder in os.listdir(KB_ROOT_PATH)
+            if os.path.isdir(os.path.join(KB_ROOT_PATH, folder))
+               and os.path.exists(os.path.join(KB_ROOT_PATH, folder, "vector_store", "index.faiss"))
+        ]
+    return all_doc_ids;
 
 def api_start(host, port):
     global app
