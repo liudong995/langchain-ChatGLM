@@ -8,6 +8,7 @@ import asyncio
 import nltk
 import pydantic
 import uvicorn
+import gradio as gr
 from fastapi import Body, FastAPI, File, Form, Query, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -405,10 +406,32 @@ async def stream_chat(websocket: WebSocket, knowledge_base_id: str):
         )
         turn += 1
 
+def add_vs_name(vs_name):
+    if vs_name in get_vs_list():
+        vs_status = "与已有知识库名称冲突，请重新选择其他名称后提交"
+        return BaseResponse(code=500, msg=vs_status)
+    else:
+        # 新建上传文件存储路径
+        if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "content")):
+            os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "content"))
+        # 新建向量库存储路径
+        if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "vector_store")):
+            os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "vector_store"))
+        vs_status = f"""已新增知识库"{vs_name}",将在上传文件并载入成功后进行存储。请在开始对话前，先完成文件上传。 """
+        return BaseResponse(code=200, msg=vs_status)
 
 async def document():
     return RedirectResponse(url="/docs")
 
+def get_vs_list():
+    lst_default = ["新建知识库"]
+    if not os.path.exists(KB_ROOT_PATH):
+        return lst_default
+    lst = os.listdir(KB_ROOT_PATH)
+    if not lst:
+        return lst_default
+    lst.sort()
+    return lst
 
 def api_start(host, port):
     global app
@@ -441,6 +464,7 @@ def api_start(host, port):
     app.post("/local_doc_qa/bing_search_chat", response_model=ChatMessage)(bing_search_chat)
     app.get("/local_doc_qa/list_knowledge_base", response_model=ListDocsResponse)(list_kbs)
     app.get("/local_doc_qa/list_files", response_model=ListDocsResponse)(list_docs)
+    app.post("/local_doc_qa/add_knowledge_base", response_model=BaseResponse)(add_vs_name)
     app.delete("/local_doc_qa/delete_knowledge_base", response_model=BaseResponse)(delete_kb)
     app.delete("/local_doc_qa/delete_file", response_model=BaseResponse)(delete_doc)
     app.post("/local_doc_qa/update_file", response_model=BaseResponse)(update_doc)
