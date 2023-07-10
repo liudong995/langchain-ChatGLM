@@ -406,18 +406,18 @@ async def stream_chat(websocket: WebSocket, knowledge_base_id: str):
         )
         turn += 1
 
-def add_vs_name(vs_name):
-    if vs_name in get_vs_list():
+def add_vs_name(knowledge_base_id):
+    if knowledge_base_id in get_vs_list():
         vs_status = "与已有知识库名称冲突，请重新选择其他名称后提交"
         return BaseResponse(code=500, msg=vs_status)
     else:
         # 新建上传文件存储路径
-        if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "content")):
-            os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "content"))
+        if not os.path.exists(os.path.join(KB_ROOT_PATH, knowledge_base_id, "content")):
+            os.makedirs(os.path.join(KB_ROOT_PATH, knowledge_base_id, "content"))
         # 新建向量库存储路径
-        if not os.path.exists(os.path.join(KB_ROOT_PATH, vs_name, "vector_store", "index.faiss")):
-            os.makedirs(os.path.join(KB_ROOT_PATH, vs_name, "vector_store", "index.faiss"))
-        vs_status = f"""已新增知识库"{vs_name}",将在上传文件并载入成功后进行存储。请在开始对话前，先完成文件上传。 """
+        if not os.path.exists(os.path.join(KB_ROOT_PATH, knowledge_base_id, "vector_store", "index.faiss")):
+            os.makedirs(os.path.join(KB_ROOT_PATH, knowledge_base_id, "vector_store", "index.faiss"))
+        vs_status = f"""已新增知识库"{knowledge_base_id}",将在上传文件并载入成功后进行存储。请在开始对话前，先完成文件上传。 """
         return BaseResponse(code=200, msg=vs_status)
 
 async def document():
