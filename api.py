@@ -157,7 +157,7 @@ async def list_kbs():
             folder
             for folder in os.listdir(KB_ROOT_PATH)
             if os.path.isdir(os.path.join(KB_ROOT_PATH, folder))
-               and os.path.exists(os.path.join(KB_ROOT_PATH, folder, "vector_store", "index.faiss"))
+               and os.path.exists(os.path.join(KB_ROOT_PATH, folder, "vector_store"))
         ]
 
     return ListDocsResponse(data=all_doc_ids)
@@ -184,9 +184,9 @@ async def delete_kb(
 ):
     # TODO: 确认是否支持批量删除知识库
     knowledge_base_id = urllib.parse.unquote(knowledge_base_id)
-    if not os.path.exists(get_folder_path(knowledge_base_id)):
+    if not os.path.exists(os.path.join(KB_ROOT_PATH, knowledge_base_id)):
         return {"code": 1, "msg": f"Knowledge base {knowledge_base_id} not found"}
-    shutil.rmtree(get_folder_path(knowledge_base_id))
+    shutil.rmtree(os.path.join(KB_ROOT_PATH, knowledge_base_id))
     return BaseResponse(code=200, msg=f"Knowledge Base {knowledge_base_id} delete success")
 
 
@@ -415,8 +415,8 @@ def add_vs_name(knowledge_base_id):
         if not os.path.exists(os.path.join(KB_ROOT_PATH, knowledge_base_id, "content")):
             os.makedirs(os.path.join(KB_ROOT_PATH, knowledge_base_id, "content"))
         # 新建向量库存储路径
-        if not os.path.exists(os.path.join(KB_ROOT_PATH, knowledge_base_id, "vector_store", "index.faiss")):
-            os.makedirs(os.path.join(KB_ROOT_PATH, knowledge_base_id, "vector_store", "index.faiss"))
+        if not os.path.exists(os.path.join(KB_ROOT_PATH, knowledge_base_id, "vector_store")):
+            os.makedirs(os.path.join(KB_ROOT_PATH, knowledge_base_id, "vector_store"))
         vs_status = f"""已新增知识库"{knowledge_base_id}",将在上传文件并载入成功后进行存储。请在开始对话前，先完成文件上传。 """
         return BaseResponse(code=200, msg=vs_status)
 
@@ -431,9 +431,9 @@ def get_vs_list():
             folder
             for folder in os.listdir(KB_ROOT_PATH)
             if os.path.isdir(os.path.join(KB_ROOT_PATH, folder))
-               and os.path.exists(os.path.join(KB_ROOT_PATH, folder, "vector_store", "index.faiss"))
+               and os.path.exists(os.path.join(KB_ROOT_PATH, folder, "vector_store"))
         ]
-    return all_doc_ids;
+    return all_doc_ids
 
 def api_start(host, port):
     global app
