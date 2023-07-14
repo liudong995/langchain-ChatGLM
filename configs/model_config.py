@@ -22,7 +22,7 @@ embedding_model_dict = {
 }
 
 # Embedding model name
-EMBEDDING_MODEL = "text2vec"
+EMBEDDING_MODEL = "m3e-base"
 
 # Embedding running device
 EMBEDDING_DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
@@ -108,7 +108,7 @@ llm_model_dict = {
         "pretrained_model_name": "chatglm2-6b",
         "local_model_path": None,
         "provides": "FastChatOpenAILLM",  # 使用fastchat api时，需保证"provides"为"FastChatOpenAILLM"
-        "api_base_url": "http://localhost:8000/v1"  # "name"修改为fastchat服务中的"api_base_url"
+        "api_base_url": "http://192.168.3.100:8001/v1"  # "name"修改为fastchat服务中的"api_base_url"
     },
 
     # 通过 fastchat 调用的模型请参考如下格式
@@ -122,7 +122,7 @@ llm_model_dict = {
 }
 
 # LLM 名称
-LLM_MODEL = "fastchat-chatglm-6b"
+LLM_MODEL = "fastchat-chatglm2-6b"
 # 量化加载8bit 模型
 LOAD_IN_8BIT = False
 # Load the model with bfloat16 precision. Requires NVIDIA Ampere GPU.
@@ -165,7 +165,7 @@ CHUNK_SIZE = 250
 LLM_HISTORY_LEN = 3
 
 # 知识库检索时返回的匹配内容条数
-VECTOR_SEARCH_TOP_K = 5
+VECTOR_SEARCH_TOP_K = 10
 
 # 知识检索内容相关度 Score, 数值范围约为0-1100，如果为0，则不生效，经测试设置为小于500时，匹配结果更精准
 VECTOR_SEARCH_SCORE_THRESHOLD = 0
@@ -202,4 +202,4 @@ BING_SUBSCRIPTION_KEY = ""
 # 是否开启中文标题加强，以及标题增强的相关配置
 # 通过增加标题判断，判断哪些文本为标题，并在metadata中进行标记；
 # 然后将文本与往上一级的标题进行拼合，实现文本信息的增强。
-ZH_TITLE_ENHANCE = False
+ZH_TITLE_ENHANCE = True

@@ -265,7 +265,8 @@ def refresh_vs_list():
 def delete_file(vs_id, files_to_delete, chatbot):
     vs_path = os.path.join(KB_ROOT_PATH, vs_id, "vector_store")
     content_path = os.path.join(KB_ROOT_PATH, vs_id, "content")
-    docs_path = [os.path.join(content_path, file) for file in files_to_delete]
+    #使用文件名删除 单个文件添加是没有路径数据的
+    docs_path = [file for file in files_to_delete]
     status = local_doc_qa.delete_file_from_vector_store(vs_path=vs_path,
                                                         filepath=docs_path)
     if "fail" not in status:

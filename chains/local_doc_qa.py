@@ -231,6 +231,14 @@ class LocalDocQA:
         related_docs_with_score = vector_store.similarity_search_with_score(query, k=self.top_k)
         torch_gc()
         if len(related_docs_with_score) > 0:
+            # 根据字符串匹配为纠错回答
+            correction_docs = []
+            for doc in related_docs_with_score:
+                title = doc.metadata['source']
+                if title == query:
+                    correction_docs.append(doc)
+            if len(correction_docs) > 0:
+                related_docs_with_score = correction_docs
             prompt = generate_prompt(related_docs_with_score, query)
         else:
             prompt = query
