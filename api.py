@@ -217,6 +217,27 @@ async def delete_doc(
     else:
         return BaseResponse(code=1, msg=f"document {doc_name} not found")
 
+def delete_correction_file(vs_id, files_to_delete):
+    vs_path = os.path.join(KB_ROOT_PATH, vs_id, "vector_store")
+    #使用文件名删除 单个文件添加是没有路径数据的
+    docs_path = [file for file in files_to_delete]
+    status = local_doc_qa.delete_file_from_vector_store(vs_path=vs_path,
+                                                        filepath=docs_path)
+    code = 400
+    if "fail" not in status:
+        for doc_path in docs_path:
+            if os.path.exists(doc_path):
+                os.remove(doc_path)
+    rested_files = local_doc_qa.list_file_from_vector_store(vs_path)
+    if "fail" in status:
+        vs_status = "文件删除失败。"
+    elif len(rested_files)>0:
+        code = 200
+        vs_status = "文件删除成功。"
+    else:
+        vs_status = f"文件删除成功，知识库{vs_id}中无已上传文件，请先上传文件后，再开始提问。"
+    return BaseResponse(code,vs_status)
+
 
 async def update_doc(
         knowledge_base_id: str = Query(...,
@@ -434,6 +455,26 @@ def get_vs_list():
                and os.path.exists(os.path.join(KB_ROOT_PATH, folder, "vector_store"))
         ]
     return all_doc_ids
+# 单个问题入库
+def one_knowledge_add(vs_id: str = Body(..., description="Knowledge Id", example="kb1")
+                      , one_title: str = Body(..., description="title", example="kb1")
+                      , one_content: str = Body(..., description="content", example="kb1")
+                      , one_content_segmentation: str = Body(..., description="", example="kb1")
+                      , sentence_size: int = Body()
+                      ):
+    vs_path = os.path.join(KB_ROOT_PATH, vs_id, "vector_store")
+    code = 400
+    if local_doc_qa.llm and local_doc_qa.embeddings:
+        vs_path, loaded_files = local_doc_qa.one_knowledge_add(vs_path, one_title, one_content, one_content_segmentation,
+                                                                   sentence_size)
+        if len(loaded_files):
+            file_status = f"已添加 {'、'.join([os.path.split(i)[-1] for i in loaded_files if i])} 内容至知识库，并已加载知识库，请开始提问"
+            code = 200
+        else:
+            file_status = "文件未成功加载，请重新上传文件"
+    else:
+        file_status = "模型未完成加载，请先在加载模型后再导入文件"
+    return BaseResponse(code, file_status)
 
 def api_start(host, port):
     global app
@@ -468,7 +509,9 @@ def api_start(host, port):
     app.get("/local_doc_qa/list_files", response_model=ListDocsResponse)(list_docs)
     app.post("/local_doc_qa/add_knowledge_base", response_model=BaseResponse)(add_vs_name)
     app.delete("/local_doc_qa/delete_knowledge_base", response_model=BaseResponse)(delete_kb)
+    app.delete("/local_doc_qa/one_knowledge_add", response_model=BaseResponse)(one_knowledge_add)
     app.delete("/local_doc_qa/delete_file", response_model=BaseResponse)(delete_doc)
+    app.delete("/local_doc_qa/delete_correction_file", response_model=BaseResponse)(delete_correction_file)
     app.post("/local_doc_qa/update_file", response_model=BaseResponse)(update_doc)
 
     local_doc_qa = LocalDocQA()
