@@ -217,7 +217,8 @@ async def delete_doc(
     else:
         return BaseResponse(code=1, msg=f"document {doc_name} not found")
 
-def delete_correction_file(vs_id, files_to_delete):
+def delete_correction_file(vs_id : str = Body(),
+                           files_to_delete : list = Body()):
     vs_path = os.path.join(KB_ROOT_PATH, vs_id, "vector_store")
     #使用文件名删除 单个文件添加是没有路径数据的
     docs_path = [file for file in files_to_delete]
@@ -500,18 +501,29 @@ def api_start(host, port):
     app.get("/", response_model=BaseResponse)(document)
 
     app.post("/chat", response_model=ChatMessage)(chat)
-
+    # 上传文件
     app.post("/local_doc_qa/upload_file", response_model=BaseResponse)(upload_file)
+    # 批量上传文件
     app.post("/local_doc_qa/upload_files", response_model=BaseResponse)(upload_files)
+    # 知识库聊天
     app.post("/local_doc_qa/local_doc_chat", response_model=ChatMessage)(local_doc_chat)
+    # bing搜索聊天
     app.post("/local_doc_qa/bing_search_chat", response_model=ChatMessage)(bing_search_chat)
+    # 知识库列表
     app.get("/local_doc_qa/list_knowledge_base", response_model=ListDocsResponse)(list_kbs)
+    # 知识库的文件列表
     app.get("/local_doc_qa/list_files", response_model=ListDocsResponse)(list_docs)
+    # 添加知识库
     app.post("/local_doc_qa/add_knowledge_base", response_model=BaseResponse)(add_vs_name)
+    # 删除知识库
     app.delete("/local_doc_qa/delete_knowledge_base", response_model=BaseResponse)(delete_kb)
+    # 添加单个知识-纠错
     app.delete("/local_doc_qa/one_knowledge_add", response_model=BaseResponse)(one_knowledge_add)
+    # 删除文件
     app.delete("/local_doc_qa/delete_file", response_model=BaseResponse)(delete_doc)
+    # 删除纠错知识
     app.delete("/local_doc_qa/delete_correction_file", response_model=BaseResponse)(delete_correction_file)
+    # 更新文件
     app.post("/local_doc_qa/update_file", response_model=BaseResponse)(update_doc)
 
     local_doc_qa = LocalDocQA()
