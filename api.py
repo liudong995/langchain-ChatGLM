@@ -168,7 +168,8 @@ async def list_docs(
 ):
     local_doc_folder = get_folder_path(knowledge_base_id)
     if not os.path.exists(local_doc_folder):
-        return {"code": 1, "msg": f"Knowledge base {knowledge_base_id} not found"}
+        msg = f"Knowledge base {knowledge_base_id} not found"
+        return ListDocsResponse(code=1, msg=msg, data=[])
     all_doc_names = [
         doc
         for doc in os.listdir(local_doc_folder)
@@ -176,6 +177,15 @@ async def list_docs(
     ]
     return ListDocsResponse(data=all_doc_names)
 
+async def list_docs_from_vector_store(
+        knowledge_base_id: Optional[str] = Query(default=None, description="Knowledge Base Name", example="kb1")
+):
+    vs_path = get_vs_path(knowledge_base_id)
+    if not os.path.exists(vs_path):
+        msg = f"Knowledge base {knowledge_base_id} not found"
+        return ListDocsResponse(code=1, msg=msg, data=[])
+    choices = local_doc_qa.list_file_from_vector_store(vs_path)
+    return ListDocsResponse(data=choices)
 
 async def delete_kb(
         knowledge_base_id: str = Query(...,
@@ -385,7 +395,7 @@ async def chat(
     )
 
 
-async def stream_chat(websocket: WebSocket, knowledge_base_id: str):
+async def stream_chat(websocket: WebSocket):
     await websocket.accept()
     turn = 1
     while True:
@@ -475,7 +485,7 @@ def one_knowledge_add(vs_id: str = Body(..., description="Knowledge Id", example
             file_status = "文件未成功加载，请重新上传文件"
     else:
         file_status = "模型未完成加载，请先在加载模型后再导入文件"
-    return BaseResponse(code, file_status)
+    return BaseResponse(code=code, msg=file_status)
 
 def api_start(host, port):
     global app
@@ -496,7 +506,7 @@ def api_start(host, port):
             allow_methods=["*"],
             allow_headers=["*"],
         )
-    app.websocket("/local_doc_qa/stream-chat/{knowledge_base_id}")(stream_chat)
+    app.websocket("/local_doc_qa/stream-chat")(stream_chat)
 
     app.get("/", response_model=BaseResponse)(document)
 
@@ -511,6 +521,8 @@ def api_start(host, port):
     app.post("/local_doc_qa/bing_search_chat", response_model=ChatMessage)(bing_search_chat)
     # 知识库列表
     app.get("/local_doc_qa/list_knowledge_base", response_model=ListDocsResponse)(list_kbs)
+    # 知识库加载的文件列表
+    app.get("/local_doc_qa/list_docs_from_vector_store", response_model=ListDocsResponse)(list_docs_from_vector_store)
     # 知识库的文件列表
     app.get("/local_doc_qa/list_files", response_model=ListDocsResponse)(list_docs)
     # 添加知识库
@@ -518,7 +530,7 @@ def api_start(host, port):
     # 删除知识库
     app.delete("/local_doc_qa/delete_knowledge_base", response_model=BaseResponse)(delete_kb)
     # 添加单个知识-纠错
-    app.delete("/local_doc_qa/one_knowledge_add", response_model=BaseResponse)(one_knowledge_add)
+    app.post("/local_doc_qa/one_knowledge_add", response_model=BaseResponse)(one_knowledge_add)
     # 删除文件
     app.delete("/local_doc_qa/delete_file", response_model=BaseResponse)(delete_doc)
     # 删除纠错知识

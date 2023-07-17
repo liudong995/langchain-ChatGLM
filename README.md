@@ -262,3 +262,4 @@ CUDA_VISIBLE_DEVICES=0 nohup python3 -u -m fastchat.serve.model_worker --model-n
 nohup python3 -u -m fastchat.serve.openai_api_server --host 0.0.0.0 --port 8001 >openai_api.log 2>&1 &
 
 nohup python3 -u webui.py >webui.log 2>&1 &
+nohup python3 -u api.py >api.log 2>&1 &
