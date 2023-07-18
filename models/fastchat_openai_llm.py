@@ -218,7 +218,10 @@ class FastChatOpenAILLMChain(RemoteRpcModel, Chain, ABC):
                 role = stream_resp["choices"][0]["delta"].get("role", "")
                 token = stream_resp["choices"][0]["delta"].get("content", "")
                 out_str += token
-                history[-1] = [prompt, out_str]
+                if len(history)>0:
+                    history[-1] = [prompt, out_str]
+                else:
+                    history.append([prompt, out_str])
                 answer_result = AnswerResult()
                 answer_result.history = history
                 answer_result.llm_output = {"answer": out_str}
