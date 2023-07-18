@@ -8,7 +8,6 @@ import asyncio
 import nltk
 import pydantic
 import uvicorn
-import gradio as gr
 from fastapi import Body, FastAPI, File, Form, Query, UploadFile, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -598,33 +597,15 @@ def api_start(host, port, **kwargs):
     app.delete("/local_doc_qa/delete_knowledge_base", response_model=BaseResponse, summary="删除知识库")(delete_kb)
     app.delete("/local_doc_qa/delete_file", response_model=BaseResponse, summary="删除知识库内的文件")(delete_doc)
     app.post("/local_doc_qa/update_file", response_model=BaseResponse, summary="上传文件到知识库，并删除另一个文件")(update_doc)
-    app.post("/chat", response_model=ChatMessage)(chat)
-    # 上传文件
-    app.post("/local_doc_qa/upload_file", response_model=BaseResponse)(upload_file)
-    # 批量上传文件
-    app.post("/local_doc_qa/upload_files", response_model=BaseResponse)(upload_files)
-    # 知识库聊天
-    app.post("/local_doc_qa/local_doc_chat", response_model=ChatMessage)(local_doc_chat)
-    # bing搜索聊天
-    app.post("/local_doc_qa/bing_search_chat", response_model=ChatMessage)(bing_search_chat)
-    # 知识库列表
-    app.get("/local_doc_qa/list_knowledge_base", response_model=ListDocsResponse)(list_kbs)
+
     # 知识库加载的文件列表
     app.get("/local_doc_qa/list_docs_from_vector_store", response_model=ListDocsResponse)(list_docs_from_vector_store)
-    # 知识库的文件列表
-    app.get("/local_doc_qa/list_files", response_model=ListDocsResponse)(list_docs)
     # 添加知识库
     app.post("/local_doc_qa/add_knowledge_base", response_model=BaseResponse)(add_vs_name)
-    # 删除知识库
-    app.delete("/local_doc_qa/delete_knowledge_base", response_model=BaseResponse)(delete_kb)
     # 添加单个知识-纠错
     app.post("/local_doc_qa/one_knowledge_add", response_model=BaseResponse)(one_knowledge_add)
-    # 删除文件
-    app.delete("/local_doc_qa/delete_file", response_model=BaseResponse)(delete_doc)
     # 删除纠错知识
     app.delete("/local_doc_qa/delete_correction_file", response_model=BaseResponse)(delete_correction_file)
-    # 更新文件
-    app.post("/local_doc_qa/update_file", response_model=BaseResponse)(update_doc)
 
     local_doc_qa = LocalDocQA()
     local_doc_qa.init_cfg(
