@@ -222,9 +222,9 @@ async def delete_kb(
 
     # TODO: 确认是否支持批量删除知识库
     knowledge_base_id = urllib.parse.unquote(knowledge_base_id)
-    if not os.path.exists(get_folder_path(knowledge_base_id)):
+    if not os.path.exists(get_kb_path(knowledge_base_id)):
         return {"code": 1, "msg": f"Knowledge base {knowledge_base_id} not found"}
-    shutil.rmtree(get_folder_path(knowledge_base_id))
+    shutil.rmtree(get_kb_path(knowledge_base_id))
     return BaseResponse(code=200, msg=f"Knowledge Base {knowledge_base_id} delete success")
 
 
