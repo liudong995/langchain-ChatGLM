@@ -261,9 +261,9 @@ Web UI 可以实现如下功能：
 🎉 langchain-ChatGLM 项目微信交流群，如果你也对本项目感兴趣，欢迎加入群聊参与讨论交流。
 
 ## 启动命令
-nohup python3 -u -m fastchat.serve.controller >controller.log 2>&1 &
-CUDA_VISIBLE_DEVICES=0 nohup python3 -u -m fastchat.serve.model_worker --model-name 'chatglm2-6b' --model-path /root/model/chatglm2-6b >model_worker.log 2>&1 &
-nohup python3 -u -m fastchat.serve.openai_api_server --host 0.0.0.0 --port 8001 >openai_api.log 2>&1 &
+nohup python3 -u -m fastchat.serve.controller >/opt/logs/controller.log 2>&1 &
+CUDA_VISIBLE_DEVICES=0 nohup python3 -u -m fastchat.serve.model_worker --model-name 'chatglm2-6b' --model-path /root/model/chatglm2-6b >/opt/logs/model_worker.log 2>&1 &
+nohup python3 -u -m fastchat.serve.openai_api_server --host 0.0.0.0 --port 8001 >/opt/logs/openai_api.log 2>&1 &
 
 nohup python3 -u webui.py >/opt/logs/webui.log 2>&1 &
 nohup python3 -u api.py --port 7862 >/opt/logs/api.log 2>&1 &
