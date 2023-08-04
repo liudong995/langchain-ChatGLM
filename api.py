@@ -546,7 +546,7 @@ def one_knowledge_add(vs_id: str = Body(..., description="Knowledge Id", example
                       ):
     vs_path = os.path.join(KB_ROOT_PATH, vs_id, "vector_store")
     code = 400
-    if local_doc_qa.llm and local_doc_qa.embeddings:
+    if local_doc_qa.llm_model_chain and local_doc_qa.embeddings:
         vs_path, loaded_files = local_doc_qa.one_knowledge_add(vs_path, one_title, one_content, one_content_segmentation,
                                                                    sentence_size)
         if len(loaded_files):
