@@ -209,7 +209,7 @@ class LocalDocQA:
             if not vs_path or not one_title or not one_conent:
                 logger.info("知识库添加错误，请确认知识库名字、标题、内容是否正确！")
                 return None, [one_title]
-            docs = [Document(page_content=one_conent + "\n", metadata={"source": one_title})]
+            docs = [Document(page_content=one_conent + "\n", metadata={"source": one_title, "context_expand": False})]
             if not one_content_segmentation:
                 text_splitter = ChineseTextSplitter(pdf=False, sentence_size=sentence_size)
                 docs = text_splitter.split_documents(docs)

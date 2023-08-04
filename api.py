@@ -541,7 +541,7 @@ def get_vs_list():
 def one_knowledge_add(vs_id: str = Body(..., description="Knowledge Id", example="kb1")
                       , one_title: str = Body(..., description="title", example="kb1")
                       , one_content: str = Body(..., description="content", example="kb1")
-                      , one_content_segmentation: str = Body(..., description="", example="kb1")
+                      , one_content_segmentation: bool = Body(..., description="", example="kb1")
                       , sentence_size: int = Body()
                       ):
     vs_path = os.path.join(KB_ROOT_PATH, vs_id, "vector_store")
