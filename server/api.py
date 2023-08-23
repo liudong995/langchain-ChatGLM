@@ -16,7 +16,8 @@ from server.chat import (chat, knowledge_base_chat, openai_chat,
 from server.knowledge_base.kb_api import list_kbs, create_kb, delete_kb
 from server.knowledge_base.kb_doc_api import (list_docs, upload_doc, delete_doc,
                                               update_doc, download_doc, recreate_vector_store,
-                                              search_docs, DocumentWithScore)
+                                              search_docs, DocumentWithScore,
+                                              one_knowledge_add, delete_one_knowledge)
 from server.utils import BaseResponse, ListResponse, FastAPI, MakeFastAPIOffline
 from typing import List
 
@@ -122,6 +123,15 @@ def create_app():
              tags=["Knowledge Base Management"],
              summary="根据content中文档重建向量库，流式输出处理进度。"
              )(recreate_vector_store)
+
+    # 添加单个知识-纠错
+    app.post("/knowledge_base/one_knowledge_add",
+             response_model=BaseResponse
+             )(one_knowledge_add)
+    # 删除纠错知识
+    app.delete("/knowledge_base/delete_one_knowledge",
+               response_model=BaseResponse
+               )(delete_one_knowledge)
 
     return app
 

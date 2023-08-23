@@ -1,14 +1,16 @@
+import json
 import os
 import urllib
+from typing import List
+
 from fastapi import File, Form, Body, Query, UploadFile
-from configs.model_config import (DEFAULT_VS_TYPE, EMBEDDING_MODEL, VECTOR_SEARCH_TOP_K, SCORE_THRESHOLD)
-from server.utils import BaseResponse, ListResponse
-from server.knowledge_base.utils import validate_kb_name, list_docs_from_folder, KnowledgeFile
 from fastapi.responses import StreamingResponse, FileResponse
-import json
-from server.knowledge_base.kb_service.base import KBServiceFactory
-from typing import List, Dict
 from langchain.docstore.document import Document
+
+from configs.model_config import (DEFAULT_VS_TYPE, EMBEDDING_MODEL, VECTOR_SEARCH_TOP_K, SCORE_THRESHOLD)
+from server.knowledge_base.kb_service.base import KBServiceFactory
+from server.knowledge_base.utils import validate_kb_name, list_docs_from_folder, KnowledgeFile
+from server.utils import BaseResponse, ListResponse
 
 
 class DocumentWithScore(Document):
@@ -18,19 +20,29 @@ class DocumentWithScore(Document):
 def search_docs(query: str = Body(..., description="用户输入", examples=["你好"]),
                 knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
                 top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
-                score_threshold: float = Body(SCORE_THRESHOLD, description="知识库匹配相关度阈值，取值范围在0-1之间，SCORE越小，相关度越高，取到1相当于不筛选，建议设置在0.5左右", ge=0, le=1),
+                score_threshold: float = Body(SCORE_THRESHOLD,
+                                              description="知识库匹配相关度阈值，取值范围在0-1之间，SCORE越小，相关度越高，取到1相当于不筛选，建议设置在0.5左右",
+                                              ge=0, le=1),
                 ) -> List[DocumentWithScore]:
     kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
     if kb is None:
         return {"code": 404, "msg": f"未找到知识库 {knowledge_base_name}", "docs": []}
     docs = kb.search_docs(query, top_k, score_threshold)
+    # 根据字符串匹配为纠错回答
+    correction_docs = []
+    for doc in docs:
+        title = doc.metadata['source']
+        if title == query:
+            correction_docs.append(doc)
+    if len(correction_docs) > 0:
+        docs = correction_docs
     data = [DocumentWithScore(**x[0].dict(), score=x[1]) for x in docs]
 
     return data
 
 
 async def list_docs(
-    knowledge_base_name: str
+        knowledge_base_name: str
 ):
     if not validate_kb_name(knowledge_base_name):
         return ListResponse(code=403, msg="Don't attack me", data=[])
@@ -81,7 +93,7 @@ async def upload_doc(file: UploadFile = File(..., description="上传文件"),
 async def delete_doc(knowledge_base_name: str = Body(..., examples=["samples"]),
                      doc_name: str = Body(..., examples=["file_name.md"]),
                      delete_content: bool = Body(False),
-                    ):
+                     ):
     if not validate_kb_name(knowledge_base_name):
         return BaseResponse(code=403, msg="Don't attack me")
 
@@ -102,7 +114,7 @@ async def delete_doc(knowledge_base_name: str = Body(..., examples=["samples"]),
 async def update_doc(
         knowledge_base_name: str = Body(..., examples=["samples"]),
         file_name: str = Body(..., examples=["file_name"]),
-    ):
+):
     '''
     更新知识库文档
     '''
@@ -126,7 +138,7 @@ async def update_doc(
 async def download_doc(
         knowledge_base_name: str = Query(..., examples=["samples"]),
         file_name: str = Query(..., examples=["test.txt"]),
-    ):
+):
     '''
     下载知识库文档
     '''
@@ -149,14 +161,12 @@ async def download_doc(
         return BaseResponse(code=500, msg=f"{kb_file.filename} 读取文件失败")
 
 
-
-
 async def recreate_vector_store(
         knowledge_base_name: str = Body(..., examples=["samples"]),
         allow_empty_kb: bool = Body(True),
         vs_type: str = Body(DEFAULT_VS_TYPE),
         embed_model: str = Body(EMBEDDING_MODEL),
-    ):
+):
     '''
     recreate vector store from the content.
     this is usefull when user can copy files to content folder directly instead of upload through network.
@@ -184,3 +194,46 @@ async def recreate_vector_store(
                 print(e)
 
     return StreamingResponse(output(kb), media_type="text/event-stream")
+
+
+# 单个问题入库
+def one_knowledge_add(knowledge_base_name: str = Body(..., description="Knowledge Id", example="kb1")
+                      , one_title: str = Body(..., description="title", example="kb1")
+                      , one_content: str = Body(..., description="content", example="kb1")
+                      ):
+    if not validate_kb_name(knowledge_base_name):
+        return BaseResponse(code=403, msg="Don't attack me")
+
+    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+
+    docs = [Document(page_content=one_content + "\n", metadata={"source": one_title, "context_expand": False})]
+
+    if (kb.exist_doc(one_title)):
+        # TODO: filesize 不同后的处理
+        file_status = f"纠错 {one_title} 已存在。"
+        return BaseResponse(code=404, msg=file_status)
+
+    kb.add_doc(docs)
+    return BaseResponse(code=200, msg="成功")
+
+
+def delete_one_knowledge(knowledge_base_name: str = Body(),
+                         doc_name: list = Body(),
+                         delete_content: bool = Body(False),
+                         ):
+    if not validate_kb_name(knowledge_base_name):
+        return BaseResponse(code=403, msg="Don't attack me")
+
+    knowledge_base_name = urllib.parse.unquote(knowledge_base_name)
+    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+
+    if not kb.exist_doc(doc_name):
+        return BaseResponse(code=404, msg=f"未找到文件 {doc_name}")
+    kb_file = KnowledgeFile(filename=doc_name,
+                            knowledge_base_name=knowledge_base_name)
+    kb.delete_doc(kb_file, delete_content)
+    return BaseResponse(code=200, msg=f"{kb_file.filename} 文件删除成功")
