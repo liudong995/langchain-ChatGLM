@@ -24,6 +24,14 @@ def search_docs(query: str = Body(..., description="用户输入", examples=["�
     if kb is None:
         return []
     docs = kb.search_docs(query, top_k, score_threshold)
+    # 根据字符串匹配为纠错回答
+    correction_docs = []
+    for doc in docs:
+        title = doc.metadata['source']
+        if title == query:
+            correction_docs.append(doc)
+    if len(correction_docs) > 0:
+        docs = correction_docs
     data = [DocumentWithScore(**x[0].dict(), score=x[1]) for x in docs]
 
     return data
@@ -214,3 +222,45 @@ async def recreate_vector_store(
                     })
 
     return StreamingResponse(output(), media_type="text/event-stream")
+
+# 单个问题入库
+def one_knowledge_add(knowledge_base_name: str = Body(..., description="Knowledge Id", example="kb1")
+                      , one_title: str = Body(..., description="title", example="kb1")
+                      , one_content: str = Body(..., description="content", example="kb1")
+                      ):
+    if not validate_kb_name(knowledge_base_name):
+        return BaseResponse(code=403, msg="Don't attack me")
+
+    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+
+    docs = [Document(page_content=one_content + "\n", metadata={"source": one_title, "context_expand": False})]
+
+    if (kb.exist_doc(one_title)):
+        # TODO: filesize 不同后的处理
+        file_status = f"纠错 {one_title} 已存在。"
+        return BaseResponse(code=404, msg=file_status)
+
+    kb.add_doc(docs)
+    return BaseResponse(code=200, msg="成功")
+
+
+def delete_one_knowledge(knowledge_base_name: str = Body(),
+                         doc_name: list = Body(),
+                         delete_content: bool = Body(False),
+                         ):
+    if not validate_kb_name(knowledge_base_name):
+        return BaseResponse(code=403, msg="Don't attack me")
+
+    knowledge_base_name = urllib.parse.unquote(knowledge_base_name)
+    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+
+    if not kb.exist_doc(doc_name):
+        return BaseResponse(code=404, msg=f"未找到文件 {doc_name}")
+    kb_file = KnowledgeFile(filename=doc_name,
+                            knowledge_base_name=knowledge_base_name)
+    kb.delete_doc(kb_file, delete_content)
+    return BaseResponse(code=200, msg=f"{kb_file.filename} 文件删除成功")
