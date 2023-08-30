@@ -26,7 +26,7 @@ def search_docs(query: str = Body(..., description="用户输入", examples=["�
     docs = kb.search_docs(query, top_k, score_threshold)
     # 根据字符串匹配为纠错回答
     correction_docs = []
-    for doc in docs:
+    for doc, score in docs:
         title = doc.metadata['source']
         if title == query:
             correction_docs.append(doc)
