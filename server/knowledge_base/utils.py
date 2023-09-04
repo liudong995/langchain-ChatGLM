@@ -1,7 +1,7 @@
 import os
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain.embeddings.huggingface import HuggingFaceBgeEmbeddings
 from configs.model_config import (
     embedding_model_dict,
     KB_ROOT_PATH,

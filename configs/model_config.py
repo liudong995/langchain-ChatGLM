@@ -20,7 +20,7 @@ embedding_model_dict = {
     "text2vec-sentence": "shibing624/text2vec-base-chinese-sentence",
     "text2vec-multilingual": "shibing624/text2vec-base-multilingual",
     "m3e-small": "moka-ai/m3e-small",
-    "m3e-base": "moka-ai/m3e-base",
+    "m3e-base": "/opt/model/m3e-base",
     "m3e-large": "moka-ai/m3e-large",
     "bge-small-zh": "BAAI/bge-small-zh",
     "bge-base-zh": "BAAI/bge-base-zh",
