@@ -234,12 +234,12 @@ def one_knowledge_add(knowledge_base_name: str = Body(..., description="Knowledg
     kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
     if kb is None:
         return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+    filename = one_title+".txt"
+    docs = [Document(page_content=one_content + "\n", metadata={"source": filename, "context_expand": False})]
 
-    docs = [Document(page_content=one_content + "\n", metadata={"source": one_title, "context_expand": False})]
-
-    if (kb.exist_doc(one_title)):
+    if (kb.exist_doc(filename)):
         # TODO: filesize 不同后的处理
-        file_status = f"纠错 {one_title} 已存在。"
+        file_status = f"纠错 {filename} 已存在。"
         return BaseResponse(code=404, msg=file_status)
 
     kb.add_doc(docs)
@@ -257,7 +257,7 @@ def delete_one_knowledge(knowledge_base_name: str = Body(),
     kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
     if kb is None:
         return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
-
+    doc_name = doc_name+".txt"
     if not kb.exist_doc(doc_name):
         return BaseResponse(code=404, msg=f"未找到文件 {doc_name}")
     kb_file = KnowledgeFile(filename=doc_name,
