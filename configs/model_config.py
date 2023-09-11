@@ -84,7 +84,7 @@ llm_model_dict = {
 
 
 # LLM 名称
-LLM_MODEL = "chatglm2-6b-32k"
+LLM_MODEL = "chatglm2-6b"
 
 # LLM 运行设备
 LLM_DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
