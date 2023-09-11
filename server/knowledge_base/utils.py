@@ -267,6 +267,8 @@ class KnowledgeFile:
         return os.path.getmtime(self.filepath)
 
     def get_size(self):
+        if self.cache:
+            return 10240
         return os.path.getsize(self.filepath)
 
 
