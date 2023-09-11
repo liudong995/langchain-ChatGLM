@@ -244,6 +244,7 @@ def one_knowledge_add(knowledge_base_name: str = Body(..., description="Knowledg
 
     kb_file = KnowledgeFile(filename=filename,
                             knowledge_base_name=knowledge_base_name)
+    kb_file.set_is_cache(True)
     kb.add_doc(kb_file=kb_file, docs=docs)
     return BaseResponse(code=200, msg="成功")
 
@@ -264,5 +265,6 @@ def delete_one_knowledge(knowledge_base_name: str = Body(),
         return BaseResponse(code=404, msg=f"未找到文件 {doc_name}")
     kb_file = KnowledgeFile(filename=doc_name,
                             knowledge_base_name=knowledge_base_name)
+    kb_file.set_is_cache(True)
     kb.delete_doc(kb_file, delete_content)
     return BaseResponse(code=200, msg=f"{kb_file.filename} 文件删除成功")

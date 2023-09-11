@@ -182,6 +182,7 @@ class KnowledgeFile:
         self.kb_name = knowledge_base_name
         self.filename = filename
         self.ext = os.path.splitext(filename)[-1].lower()
+        self.cache = False
         if self.ext not in SUPPORTED_EXTS:
             raise ValueError(f"暂未支持的文件格式 {self.ext}")
         self.filepath = get_file_path(knowledge_base_name, filename)
@@ -190,6 +191,10 @@ class KnowledgeFile:
 
         # TODO: 增加依据文件格式匹配text_splitter
         self.text_splitter_name = None
+
+    # 放置当前文件是否是临时文件
+    def set_is_cache(self, cache: bool):
+        self.cache = cache
 
     def file2text(self, using_zh_title_enhance=ZH_TITLE_ENHANCE, refresh: bool = False):
         if self.docs is not None and not refresh:
@@ -257,6 +262,8 @@ class KnowledgeFile:
         return docs
 
     def get_mtime(self):
+        if self.cache:
+            return self.filename
         return os.path.getmtime(self.filepath)
 
     def get_size(self):
@@ -275,11 +282,11 @@ def run_in_thread_pool(
     tasks = []
     if pool is None:
         pool = ThreadPoolExecutor()
-    
+
     for kwargs in params:
         thread = pool.submit(func, **kwargs)
         tasks.append(thread)
-    
+
     for obj in as_completed(tasks):
         yield obj.result()
 
@@ -310,6 +317,6 @@ def files2docs_in_thread(
             kwargs = file
         kwargs["file"] = file
         kwargs_list.append(kwargs)
-    
+
     for result in run_in_thread_pool(func=task, params=kwargs_list, pool=pool):
         yield result
