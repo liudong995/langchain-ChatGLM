@@ -242,7 +242,9 @@ def one_knowledge_add(knowledge_base_name: str = Body(..., description="Knowledg
         file_status = f"纠错 {filename} 已存在。"
         return BaseResponse(code=404, msg=file_status)
 
-    kb.add_doc(kb_file=None, docs=docs)
+    kb_file = KnowledgeFile(filename=filename,
+                            knowledge_base_name=knowledge_base_name)
+    kb.add_doc(kb_file=kb_file, docs=docs)
     return BaseResponse(code=200, msg="成功")
 
 
