@@ -498,3 +498,4 @@ $ streamlit run webui.py --server.port 666
 - nohup python3 -u api.py --port 7862 >/opt/logs/api.log 2>&1 &
   
 - nohup python3 -u startup.py -a >/opt/logs/startup.log 2>&1 &
+- ps aux|grep python|grep -v grep|cut -c 9-16|xargs kill -9
