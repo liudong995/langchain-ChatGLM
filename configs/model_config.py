@@ -46,7 +46,7 @@ llm_model_dict = {
 
     "chatglm2-6b": {
         "local_model_path": "/opt/model/chatglm2-6b",
-        "api_base_url": "http://192.168.3.206:8001/v1",  # URL需要与运行fastchat服务端的server_config.FSCHAT_OPENAI_API一致
+        "api_base_url": "http://192.168.3.206:8888/v1",  # URL需要与运行fastchat服务端的server_config.FSCHAT_OPENAI_API一致
         "api_key": "EMPTY"
     },
 
