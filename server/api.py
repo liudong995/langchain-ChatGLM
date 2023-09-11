@@ -19,7 +19,8 @@ from server.knowledge_base.kb_doc_api import (list_files, upload_doc, delete_doc
                                               update_doc, download_doc, recreate_vector_store,
                                               search_docs, DocumentWithScore,
                                               one_knowledge_add, delete_one_knowledge)
-from server.utils import BaseResponse, ListResponse, FastAPI, MakeFastAPIOffline
+from server.utils import BaseResponse, ListResponse, FastAPI, MakeFastAPIOffline, fschat_controller_address
+import httpx
 from typing import List
 
 nltk.data.path = [NLTK_DATA_PATH] + nltk.data.path
