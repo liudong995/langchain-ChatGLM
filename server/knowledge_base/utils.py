@@ -1,4 +1,6 @@
 import os
+import time
+
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings import HuggingFaceBgeEmbeddings
@@ -263,7 +265,8 @@ class KnowledgeFile:
 
     def get_mtime(self):
         if self.cache:
-            return self.filename
+            # 缓存数据返回当前时间
+            return time.localtime()
         return os.path.getmtime(self.filepath)
 
     def get_size(self):
