@@ -266,7 +266,7 @@ class KnowledgeFile:
     def get_mtime(self):
         if self.cache:
             # 缓存数据返回当前时间
-            return time.localtime()
+            return time.gmtime()
         return os.path.getmtime(self.filepath)
 
     def get_size(self):
