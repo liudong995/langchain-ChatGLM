@@ -92,7 +92,7 @@ llm_model_dict = {
 LLM_MODEL = "chatglm2-6b"
 
 # 历史对话轮数
-HISTORY_LEN = 3
+HISTORY_LEN = 2
 
 # LLM 运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
 LLM_DEVICE = "auto"
