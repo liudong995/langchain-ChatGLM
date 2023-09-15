@@ -78,7 +78,7 @@ def knowledge_base_chat(query: str = Body(..., description="用户输入", examp
             if local_doc_url:
                 url = "file://" + doc.metadata["source"]
             else:
-                parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name":filename})
+                parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
                 url = f"{request.base_url}knowledge_base/download_doc?" + parameters
             text = f"""出处 [{inum + 1}] [{filename}]\n\n{doc.page_content}\n\n"""
             source_documents.append(text)
