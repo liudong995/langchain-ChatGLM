@@ -214,3 +214,6 @@ $ python startup.py -a
 - nvidia-smi 
 - nohup python3 -u startup.py -a >/opt/logs/startup.log 2>&1 &
 - ps aux|grep python|grep -v grep|cut -c 9-16|xargs kill -9
+
+# 版本
+- 1.1.0 langchain-ChatCLM 升级为 0.2.10版本
