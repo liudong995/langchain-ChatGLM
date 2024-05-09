@@ -144,7 +144,8 @@ def mount_knowledge_routes(app: FastAPI):
     from server.knowledge_base.kb_doc_api import (list_files, upload_docs, delete_docs,
                                                 update_docs, download_doc, recreate_vector_store,
                                                 search_docs, DocumentWithVSId, update_info,
-                                                update_docs_by_id,)
+                                                update_docs_by_id,
+                                                one_knowledge_add,delete_one_knowledge)
 
     app.post("/chat/knowledge_base_chat",
              tags=["Chat"],
@@ -232,6 +233,14 @@ def mount_knowledge_routes(app: FastAPI):
              tags=["Knowledge Base Management"],
              summary="上传文件到临时目录，用于文件对话。"
              )(upload_temp_docs)
+    # 添加单个知识-纠错
+    app.post("/knowledge_base/one_knowledge_add",
+             response_model=BaseResponse
+             )(one_knowledge_add)
+    # 删除纠错知识
+    app.delete("/knowledge_base/delete_one_knowledge",
+               response_model=BaseResponse
+               )(delete_one_knowledge)
 
 
 def mount_filename_summary_routes(app: FastAPI):
@@ -251,14 +260,7 @@ def mount_filename_summary_routes(app: FastAPI):
              tags=["Knowledge kb_summary_api Management"],
              summary="重建单个知识库文件摘要"
              )(recreate_summary_vector_store)
-    # 添加单个知识-纠错
-    app.post("/knowledge_base/one_knowledge_add",
-             response_model=BaseResponse
-             )(one_knowledge_add)
-    # 删除纠错知识
-    app.delete("/knowledge_base/delete_one_knowledge",
-               response_model=BaseResponse
-               )(delete_one_knowledge)
+
 
     return app
 

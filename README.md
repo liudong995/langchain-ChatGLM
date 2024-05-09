@@ -216,4 +216,4 @@ $ python startup.py -a
 - ps aux|grep python|grep -v grep|cut -c 9-16|xargs kill -9
 
 # 版本
-- 1.1.0 langchain-ChatCLM 升级为 0.2.10版本
+- 0.1.0 langchain-ChatCLM 升级为 0.2.10版本
