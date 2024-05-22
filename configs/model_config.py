@@ -6,7 +6,7 @@ import os
 MODEL_ROOT_PATH = "/Users/liudong/model"
 
 # 选用的 Embedding 名称
-EMBEDDING_MODEL = "m3e-base"
+EMBEDDING_MODEL = "zhipu-api"
 
 # Embedding 模型运行设备。设为 "auto" 会自动检测(会有警告)，也可手动设定为 "cuda","mps","cpu","xpu" 其中之一。
 EMBEDDING_DEVICE = "auto"
