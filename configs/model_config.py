@@ -26,7 +26,7 @@ EMBEDDING_MODEL_OUTPUT_PATH = "output"
 # 在这里，我们使用目前主流的两个离线模型，其中，chatglm3-6b 为默认加载模型。
 # 如果你的显存不足，可使用 Qwen-1_8B-Chat, 该模型 FP16 仅需 3.8G显存。
 
-LLM_MODELS = ["zhipu-api"]
+LLM_MODELS = ["zhipu-api","qianfan-api"]
 Agent_MODEL = None
 
 # LLM 模型运行设备。设为"auto"会自动检测(会有警告)，也可手动设定为 "cuda","mps","cpu","xpu" 其中之一。
@@ -72,10 +72,10 @@ ONLINE_LLM_MODEL = {
 
     # 百度千帆 API，申请方式请参考 https://cloud.baidu.com/doc/WENXINWORKSHOP/s/4lilb2lpf
     "qianfan-api": {
-        "version": "ERNIE-Bot",  # 注意大小写。当前支持 "ERNIE-Bot" 或 "ERNIE-Bot-turbo"， 更多的见官方文档。
-        "version_url": "",  # 也可以不填写version，直接填写在千帆申请模型发布的API地址
-        "api_key": "",
-        "secret_key": "",
+        "version": "ERNIE-Lite",  # 注意大小写。当前支持 "ERNIE-Bot" 或 "ERNIE-Bot-turbo"， 更多的见官方文档。
+        "version_url": "ERNIE-Lite-8K-0922",  # 也可以不填写version，直接填写在千帆申请模型发布的API地址
+        "api_key": "NIlSnGU48elZKGMFna3D8aPl",
+        "secret_key": "R8Kgs5AO3F6KomaDR2BZ1xhuv8k5INMK",
         "provider": "QianFanWorker",
     },
 
