@@ -72,8 +72,8 @@ ONLINE_LLM_MODEL = {
 
     # 百度千帆 API，申请方式请参考 https://cloud.baidu.com/doc/WENXINWORKSHOP/s/4lilb2lpf
     "qianfan-api": {
-        "version": "ERNIE-Lite",  # 注意大小写。当前支持 "ERNIE-Bot" 或 "ERNIE-Bot-turbo"， 更多的见官方文档。
-        "version_url": "ERNIE-Lite-8K-0922",  # 也可以不填写version，直接填写在千帆申请模型发布的API地址
+        "version": "ERNIE-Speed",  # 注意大小写。当前支持 "ERNIE-Bot" 或 "ERNIE-Bot-turbo"， 更多的见官方文档。
+        "version_url": "ernie-speed-128k",  # 也可以不填写version，直接填写在千帆申请模型发布的API地址
         "api_key": "NIlSnGU48elZKGMFna3D8aPl",
         "secret_key": "R8Kgs5AO3F6KomaDR2BZ1xhuv8k5INMK",
         "provider": "QianFanWorker",
