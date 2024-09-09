@@ -8,7 +8,7 @@ sse_starlette~=1.8.2
 nltk~=3.8.1
 uvicorn>=0.27.0.post1
 starlette~=0.35.0
-unstructured[all-docs]~=0.12.0
+unstructured[all-docs] # ==0.11.8
 python-magic-bin; sys_platform == 'win32'
 SQLAlchemy~=2.0.25
 faiss-cpu~=1.7.4
@@ -40,3 +40,7 @@ watchdog~=3.0.0
 # beautifulsoup4~=4.12.2
 # pysrt~=1.1.2
 
+websockets>=12.0
+cachetools==5.3.3
+strsimpy~=0.2.1
+markdownify~=0.11.6

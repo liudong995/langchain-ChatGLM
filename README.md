@@ -204,3 +204,5 @@ $ python startup.py -a
 <img src="img/official_wechat_mp_account.png" alt="二维码" width="300" />
 
 🎉 Langchain-Chatchat 项目官方公众号，欢迎扫码关注。
+
+nohup python -u startup.py -a --lite > /opt/logs/chatchat/application.log 2>&1 &
