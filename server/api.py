@@ -179,7 +179,7 @@ def mount_knowledge_routes(app: FastAPI):
 
     app.get("/knowledge_base/list_files",
             tags=["Knowledge Base Management"],
-            response_model=ListResponse,
+            response_model=BaseResponse,
             summary="获取知识库内的文件列表"
             )(list_files)
 

@@ -63,17 +63,48 @@ def update_docs_by_id(
 
 def list_files(
         knowledge_base_name: str
-) -> ListResponse:
+) -> BaseResponse:
     if not validate_kb_name(knowledge_base_name):
-        return ListResponse(code=403, msg="Don't attack me", data=[])
+        return BaseResponse(code=403, msg="Don't attack me", data=[])
 
     knowledge_base_name = urllib.parse.unquote(knowledge_base_name)
     kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
     if kb is None:
-        return ListResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}", data=[])
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}", data=[])
     else:
-        all_doc_names = kb.list_files()
-        return ListResponse(data=all_doc_names)
+        kb_name = knowledge_base_name
+        files_in_db = kb.list_files()
+        files_in_folder = list_files_from_folder(kb_name)
+        result = {}
+        for doc in files_in_folder:
+            result[doc] = {
+                "kb_name": kb_name,
+                "file_name": doc,
+                "file_ext": os.path.splitext(doc)[-1],
+                "file_version": 0,
+                "document_loader": "",
+                "docs_count": 0,
+                "text_splitter": "",
+                "create_time": None,
+                "in_folder": True,
+                "in_db": False,
+            }
+        lower_names = {x.lower(): x for x in result}
+        for doc in files_in_db:
+            doc_detail = get_file_detail(kb_name, doc)
+            if doc_detail:
+                doc_detail["in_db"] = True
+                if doc.lower() in lower_names:
+                    result[lower_names[doc.lower()]].update(doc_detail)
+                else:
+                    doc_detail["in_folder"] = False
+                    result[doc] = doc_detail
+
+        data = []
+        for i, v in enumerate(result.values()):
+            v['No'] = i + 1
+            data.append(v)
+        return BaseResponse(code=200, msg="success", data=data)
 
 
 def _save_files_in_thread(files: List[UploadFile],
