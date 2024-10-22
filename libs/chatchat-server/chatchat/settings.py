@@ -34,7 +34,7 @@ class BasicSettings(BaseFileSettings):
     version: str = __version__
     """生成该配置模板的项目代码版本，如这里的值与程序实际版本不一致，建议重建配置文件模板"""
 
-    log_verbose: bool = False
+    log_verbose: bool = True
     """是否开启日志详细信息"""
 
     HTTPX_DEFAULT_TIMEOUT: float = 300
@@ -306,10 +306,10 @@ class ApiModelSettings(BaseFileSettings):
 
     model_config = SettingsConfigDict(yaml_file=CHATCHAT_ROOT / "model_settings.yaml")
 
-    DEFAULT_LLM_MODEL: str = "glm4-chat"
+    DEFAULT_LLM_MODEL: str = "glm-4"
     """默认选用的 LLM 名称"""
 
-    DEFAULT_EMBEDDING_MODEL: str = "bge-m3"
+    DEFAULT_EMBEDDING_MODEL: str = "embedding-2"
     """默认选用的 Embedding 名称"""
 
     Agent_MODEL: str = "" # TODO: 似乎与 LLM_MODEL_CONFIG 重复了
@@ -381,39 +381,10 @@ class ApiModelSettings(BaseFileSettings):
 
     MODEL_PLATFORMS: t.List[PlatformConfig] = [
             PlatformConfig(**{
-                "platform_name": "xinference",
-                "platform_type": "xinference",
-                "api_base_url": "http://127.0.0.1:9997/v1",
-                "api_key": "EMPTY",
-                "api_concurrencies": 5,
-                "auto_detect_model": True,
-                "llm_models": [],
-                "embed_models": [],
-                "text2image_models": [],
-                "image2text_models": [],
-                "rerank_models": [],
-                "speech2text_models": [],
-                "text2speech_models": [],
-            }),
-            PlatformConfig(**{
-                "platform_name": "ollama",
-                "platform_type": "ollama",
-                "api_base_url": "http://127.0.0.1:11434/v1",
-                "api_key": "EMPTY",
-                "api_concurrencies": 5,
-                "llm_models": [
-                    "qwen:7b",
-                    "qwen2:7b",
-                ],
-                "embed_models": [
-                    "quentinz/bge-large-zh-v1.5",
-                ],
-            }),
-            PlatformConfig(**{
                 "platform_name": "oneapi",
                 "platform_type": "oneapi",
-                "api_base_url": "http://127.0.0.1:3000/v1",
-                "api_key": "sk-",
+                "api_base_url": "http://49.232.48.123:3000/v1",
+                "api_key": "sk-yrBQTWotFDHfrdORB239643013Cf4f0098D90597Ca6d1755",
                 "api_concurrencies": 5,
                 "llm_models": [
                     # 智谱 API
@@ -421,6 +392,7 @@ class ApiModelSettings(BaseFileSettings):
                     "chatglm_turbo",
                     "chatglm_std",
                     "chatglm_lite",
+                    "glm-4",
                     # 千问 API
                     "qwen-turbo",
                     "qwen-plus",
@@ -432,33 +404,20 @@ class ApiModelSettings(BaseFileSettings):
                     "ERNIE-Bot-4",
                     # 星火 API
                     "SparkDesk",
+                    "ERNIE-Speed-128K",
                 ],
                 "embed_models": [
                     # 千问 API
                     "text-embedding-v1",
                     # 千帆 API
                     "Embedding-V1",
+                    "embedding-2",
                 ],
                 "text2image_models": [],
                 "image2text_models": [],
                 "rerank_models": [],
                 "speech2text_models": [],
                 "text2speech_models": [],
-            }),
-            PlatformConfig(**{
-                "platform_name": "openai",
-                "platform_type": "openai",
-                "api_base_url": "https://api.openai.com/v1",
-                "api_key": "sk-proj-",
-                "api_concurrencies": 5,
-                "llm_models": [
-                    "gpt-4o",
-                    "gpt-3.5-turbo",
-                ],
-                "embed_models": [
-                    "text-embedding-3-small",
-                    "text-embedding-3-large",
-                ],
             }),
         ]
     """模型平台配置"""
@@ -650,7 +609,7 @@ class PromptSettings(BaseFileSettings):
 
     rag: dict = {
         "default": (
-            "【指令】根据已知信息，简洁和专业的来回答问题。"
+            "【指令】根据已知信息和历史对话，简洁和专业的来回答问题。"
             "如果无法从中得到答案，请说 “根据已知信息无法回答该问题”，不允许在答案中添加编造成分，答案请使用中文。\n\n"
             "【已知信息】{{context}}\n\n"
             "【问题】{{question}}\n"
